@@ -28,40 +28,41 @@ namespace AdventOfCode2016
 
                     switch (opcode)
                     {
-                        case "inc":
-                            registers[op1]++;
-                            break;
+                    case "inc":
+                        registers[op1]++;
+                        break;
 
-                        case "dec":
-                            registers[op1]--;
-                            break;
+                    case "dec":
+                        registers[op1]--;
+                        break;
 
-                        case "cpy":
-                            if (int.TryParse(op1, out int cpy))
-                            {
-                                registers[op2] = cpy;
-                            }
-                            else
-                            {
-                                registers[op2] = registers[op1];
-                            }
+                    case "cpy":
+                        if (int.TryParse(op1, out int cpy))
+                        {
+                            registers[op2] = cpy;
+                        }
+                        else
+                        {
+                            registers[op2] = registers[op1];
+                        }
 
-                            break;
+                        break;
 
-                        case "jnz":
-                            if (int.TryParse(op1, out int jnz))
-                            {
-                                index += jnz != 0
-                                             ? int.Parse(op2) -1
-                                             : 0;
-                            }
-                            else
-                            {
-                                index += registers[op1] != 0
-                                             ? int.Parse(op2) -1
-                                             : 0;
-                            }
-                            break;
+                    case "jnz":
+                        if (int.TryParse(op1, out int jnz))
+                        {
+                            index += jnz != 0
+                                         ? int.Parse(op2) - 1
+                                         : 0;
+                        }
+                        else
+                        {
+                            index += registers[op1] != 0
+                                         ? int.Parse(op2) - 1
+                                         : 0;
+                        }
+
+                        break;
                     }
                 }
 
@@ -89,40 +90,41 @@ namespace AdventOfCode2016
 
                     switch (opcode)
                     {
-                        case "inc":
-                            registers[op1]++;
-                            break;
+                    case "inc":
+                        registers[op1]++;
+                        break;
 
-                        case "dec":
-                            registers[op1]--;
-                            break;
+                    case "dec":
+                        registers[op1]--;
+                        break;
 
-                        case "cpy":
-                            if (int.TryParse(op1, out int cpy))
-                            {
-                                registers[op2] = cpy;
-                            }
-                            else
-                            {
-                                registers[op2] = registers[op1];
-                            }
+                    case "cpy":
+                        if (int.TryParse(op1, out int cpy))
+                        {
+                            registers[op2] = cpy;
+                        }
+                        else
+                        {
+                            registers[op2] = registers[op1];
+                        }
 
-                            break;
+                        break;
 
-                        case "jnz":
-                            if (int.TryParse(op1, out int jnz))
-                            {
-                                index += jnz != 0
-                                             ? int.Parse(op2) - 1
-                                             : 0;
-                            }
-                            else
-                            {
-                                index += registers[op1] != 0
-                                             ? int.Parse(op2) - 1
-                                             : 0;
-                            }
-                            break;
+                    case "jnz":
+                        if (int.TryParse(op1, out int jnz))
+                        {
+                            index += jnz != 0
+                                         ? int.Parse(op2) - 1
+                                         : 0;
+                        }
+                        else
+                        {
+                            index += registers[op1] != 0
+                                         ? int.Parse(op2) - 1
+                                         : 0;
+                        }
+
+                        break;
                     }
                 }
 
