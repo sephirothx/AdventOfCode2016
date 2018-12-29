@@ -26,10 +26,8 @@ namespace AdventOfCode2016
 
             private static int ShortestDistance(bool[,] map, (int x, int y) start, (int x, int y) destination)
             {
-                var mainList = new Dictionary<(int x, int y), int>();
                 var current  = new Dictionary<(int x, int y), int> {{destination, 0}};
-                
-                mainList = mainList.Concat(current).ToDictionary(x => x.Key, x => x.Value);
+                var mainList = new Dictionary<(int x, int y), int>(current);
 
                 while (!mainList.ContainsKey(start))
                 {
