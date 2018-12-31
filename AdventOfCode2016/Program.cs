@@ -7,11 +7,11 @@ namespace AdventOfCode2016
     {
         private static void Main()
         {
-            const string PATH  = @"C:\Users\User\Documents\input.txt";
+            const string PATH  = @"C:\Users\Stefano\Documents\input.txt";
             var          input = File.ReadAllLines(PATH);
 
             Console.WriteLine(DateTime.Now.TimeOfDay);
-            Day24.Day24_2(input);
+            Day25.Day25_1(input);
             Console.WriteLine(DateTime.Now.TimeOfDay);
         }
     }
