@@ -11,7 +11,7 @@ namespace AdventOfCode2016
             var          input = File.ReadAllLines(PATH);
 
             Console.WriteLine(DateTime.Now.TimeOfDay);
-            Day25.Day25_1(input);
+            Day22.Day22_2(input);
             Console.WriteLine(DateTime.Now.TimeOfDay);
         }
     }
