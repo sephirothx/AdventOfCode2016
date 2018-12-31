@@ -55,6 +55,51 @@ namespace AdventOfCode2016
                 return nodes;
             }
 
+            private static IEnumerable<Node> GetNeighbors(Node[,] nodes, int x, int y)
+            {
+                var neighbors = new List<Node>();
+
+                for (int i = x - 1; i <= x + 1; i++)
+                for (int j = y - 1; j <= y + 1; j++)
+                {
+                    if (x < 0      ||
+                        y < 0      ||
+                        x >= X_DIM ||
+                        y >= Y_DIM)
+                    {
+                        continue;
+                    }
+
+                    neighbors.Add(nodes[x, y]);
+                }
+                
+                return neighbors;
+            }
+
+            private static List<(Node giver, Node taker)> GetViablePairs(Node[,] nodes)
+            {
+                var viablePairs = new List<(Node giver, Node taker)>();
+                
+                foreach (var node in nodes)
+                foreach (var neighbor in GetNeighbors(nodes, node.Location.x, node.Location.y))
+                {
+                    if (node.Used <= neighbor.Avail)
+                    {
+                        viablePairs.Add((node, neighbor));
+                    }
+                }
+
+                return viablePairs;
+            }
+
+            private static int FindShortestPathLength(Node[,] nodes)
+            {
+                var tmpNodes = new Node[X_DIM, Y_DIM];
+                Array.Copy(nodes, tmpNodes, nodes.Length);
+
+                return 0;
+            }
+
             public static void Day22_1(IEnumerable<string> input)
             {
                 var nodes       = GetInput(input);
@@ -79,17 +124,11 @@ namespace AdventOfCode2016
                 Console.WriteLine(viablePairs);
             }
 
-            private static int FindShortestPathLength(Node[,] nodes)
-            {
-                return 0;
-            }
-
             public static void Day22_2(IEnumerable<string> input)
             {
                 var nodes = GetInput(input);
                 nodes[X_DIM - 1, Y_DIM - 1].Goal = true;
-
-                Console.WriteLine(FindShortestPathLength(nodes));
+                
             }
         }
     }

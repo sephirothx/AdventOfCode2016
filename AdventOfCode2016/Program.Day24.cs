@@ -10,7 +10,6 @@ namespace AdventOfCode2016
         {
             private const int X_DIM = 183;
             private const int Y_DIM = 39;
-            private const int WALL = -1;
 
             private static IEnumerable<(int x, int y)> GetNeighbours((int x, int y) cell)
             {
@@ -25,84 +24,196 @@ namespace AdventOfCode2016
                 return ret;
             }
 
-            private static int[,] FindPaths(int[,] map, (int x, int y) destination)
+            private static int ShortestDistance(bool[,] map, (int x, int y) start, (int x, int y) destination)
             {
-                var current = new HashSet<(int x, int y)> {destination};
+                var current  = new Dictionary<(int x, int y), int> {{destination, 0}};
+                var mainList = new Dictionary<(int x, int y), int>(current);
 
-                var outputMap = new int[X_DIM, Y_DIM];
-                Array.Copy(map, outputMap, map.Length);
-
-                bool noMorePaths = false;
-
-                while (!noMorePaths)
+                while (!mainList.ContainsKey(start))
                 {
-                    var newCurrent = new HashSet<(int x, int y)>();
-                    noMorePaths = true;
+                    var newCurrent = new Dictionary<(int x, int y), int>();
 
                     foreach (var i in current)
                     {
-                        int value = outputMap[i.x, i.y] < 0
-                                        ? 1
-                                        : outputMap[i.x, i.y] + 1;
-                        var neighbours = GetNeighbours(i);
+                        int value      = i.Value + 1;
+                        var neighbours = GetNeighbours(i.Key);
 
                         foreach (var cell in neighbours)
                         {
                             if (cell.x >= X_DIM ||
-                                cell.x < 0          ||
+                                cell.x < 0      ||
                                 cell.y >= Y_DIM ||
                                 cell.y < 0)
                             {
                                 continue;
                             }
 
-                            if (!newCurrent.Contains(cell))
+                            if (!newCurrent.ContainsKey(cell))
                             {
-                                newCurrent.Add(cell);
+                                newCurrent.Add(cell, value);
+                            }
+                            else if (newCurrent[cell] > value)
+                            {
+                                newCurrent[cell] = value;
                             }
 
-                            if (outputMap[cell.x, cell.y] > value ||
-                                outputMap[cell.x, cell.y] == 0)
-                            {
-                                outputMap[cell.x, cell.y] = value;
-                            }
-
-                            if (outputMap[cell.x, cell.y] < value)
+                            if (map[cell.x, cell.y])
                             {
                                 newCurrent.Remove(cell);
+                            }
+
+                            if (mainList.ContainsKey(cell))
+                            {
+                                if (mainList[cell] > value)
+                                {
+                                    mainList.Remove(cell);
+                                }
+                                else
+                                {
+                                    newCurrent.Remove(cell);
+                                }
                             }
                         }
                     }
 
-                    if (newCurrent.Any())
-                    {
-                        noMorePaths = false;
-                    }
-
                     current = newCurrent;
+                    mainList = mainList.Concat(current).ToDictionary(x => x.Key, x => x.Value);
                 }
 
-                return outputMap;
+                return mainList[start];
             }
 
-            private static int[,] GetInput(string[] input)
+            private static bool[,] GetInput(IReadOnlyList<string> input)
             {
-                var map = new int[X_DIM, Y_DIM];
+                var map = new bool[X_DIM, Y_DIM];
 
-                for (int y = 0; y < input.Length; y++)
-                for (int x = 0; x < input[y].Length; x++)
+                for (int y = 0; y < Y_DIM; y++)
+                for (int x = 0; x < X_DIM; x++)
                 {
-                    map[x, y] = input[y][x] == '#'
-                                    ? WALL
-                                    : 0;
+                    map[x, y] = input[y][x] == '#';
                 }
 
                 return map;
             }
 
-            public static void Day24_1(string[] input)
+            private static Dictionary<int, (int x, int y)> GetLocations(IReadOnlyList<string> input)
             {
-                var map = GetInput(input);
+                var locations = new Dictionary<int, (int, int)>();
+
+                for (int y = 0; y < Y_DIM; y++)
+                for (int x = 0; x < X_DIM; x++)
+                {
+                    if (input[y][x] != '#' &&
+                        input[y][x] != '.')
+                    {
+                        locations.Add(input[y][x] - '0', (x, y));
+                    }
+                }
+
+                return locations;
+            }
+
+            private static int[,] GetDistanceMatrix(IReadOnlyDictionary<int, (int x, int y)> locations, bool[,] map)
+            {
+                int count = locations.Count;
+                var distances = new int[count, count];
+
+                for (int i = 0; i < count; i++)
+                for (int j = i + 1; j < count; j++)
+                {
+                    distances[i, j] = distances[j, i] = ShortestDistance(map, locations[i], locations[j]);
+                }
+
+                return distances;
+            }
+
+            private static (int distance, string path) GetShortestPathLength(
+                IReadOnlyDictionary<int, (int x, int y)> locations,
+                int[,] distances,
+                int currentLocation,
+                string path)
+            {
+                (int distance, string path) ret = (0, path);
+                
+                foreach (var location in locations)
+                {
+                    if (location.Key == currentLocation ||
+                        path.Split(',').Select(int.Parse).ToList().Contains(location.Key))
+                    {
+                        continue;
+                    }
+
+                    var tmp = GetShortestPathLength(locations,
+                                                    distances,
+                                                    location.Key,
+                                                    $"{path},{location.Key}");
+
+                    int distance = distances[currentLocation, location.Key] + tmp.distance;
+
+                    if (ret.distance == 0 ||
+                        ret.distance > distance)
+                    {
+                        ret = (distance, tmp.path);
+                    }
+                }
+
+                return ret;
+            }
+
+            private static (int distance, string path) GetShortestPathLengthV2(
+                IReadOnlyDictionary<int, (int x, int y)> locations,
+                int[,] distances,
+                int currentLocation,
+                string path)
+            {
+                (int distance, string path) ret = (0, path);
+
+                if (path.Length == 15)
+                {
+                    return (distances[currentLocation, 0], $"{path},0");
+                }
+                
+                foreach (var location in locations)
+                {
+                    if (location.Key == currentLocation ||
+                        path.Split(',').Select(int.Parse).ToList().Contains(location.Key))
+                    {
+                        continue;
+                    }
+
+                    var tmp = GetShortestPathLengthV2(locations,
+                                                      distances,
+                                                      location.Key,
+                                                      $"{path},{location.Key}");
+
+                    int distance = distances[currentLocation, location.Key] + tmp.distance;
+
+                    if (ret.distance == 0 ||
+                        ret.distance > distance)
+                    {
+                        ret = (distance, tmp.path);
+                    }
+                }
+
+                return ret;
+            }
+
+            public static void Day24_1(IReadOnlyList<string> input)
+            {
+                var map       = GetInput(input);
+                var locations = GetLocations(input);
+                var distances = GetDistanceMatrix(locations, map);
+
+                Console.WriteLine(GetShortestPathLength(locations, distances, 0, "0"));
+            }
+
+            public static void Day24_2(IReadOnlyList<string> input)
+            {
+                var map       = GetInput(input);
+                var locations = GetLocations(input);
+                var distances = GetDistanceMatrix(locations, map);
+
+                Console.WriteLine(GetShortestPathLengthV2(locations, distances, 0, "0"));
             }
         }
     }
