@@ -50,6 +50,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Program.Day1.cs" />
     <Compile Include="Program.Day10.cs" />
+    <Compile Include="Program.Day11.cs" />
     <Compile Include="Program.Day12.cs" />
     <Compile Include="Program.Day13.cs" />
     <Compile Include="Program.Day14.cs" />
