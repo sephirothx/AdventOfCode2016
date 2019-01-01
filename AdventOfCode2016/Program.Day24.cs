@@ -131,9 +131,17 @@ namespace AdventOfCode2016
                 IReadOnlyDictionary<int, (int x, int y)> locations,
                 int[,] distances,
                 int currentLocation,
-                string path)
+                string path,
+                bool part2 = false)
             {
                 (int distance, string path) ret = (0, path);
+
+                if (path.Length == locations.Count * 2 - 1) 
+                {
+                    return part2
+                               ? (distances[currentLocation, 0], $"{path},0")
+                               : ret;
+                }
                 
                 foreach (var location in locations)
                 {
@@ -146,45 +154,8 @@ namespace AdventOfCode2016
                     var tmp = GetShortestPathLength(locations,
                                                     distances,
                                                     location.Key,
-                                                    $"{path},{location.Key}");
-
-                    int distance = distances[currentLocation, location.Key] + tmp.distance;
-
-                    if (ret.distance == 0 ||
-                        ret.distance > distance)
-                    {
-                        ret = (distance, tmp.path);
-                    }
-                }
-
-                return ret;
-            }
-
-            private static (int distance, string path) GetShortestPathLengthV2(
-                IReadOnlyDictionary<int, (int x, int y)> locations,
-                int[,] distances,
-                int currentLocation,
-                string path)
-            {
-                (int distance, string path) ret = (0, path);
-
-                if (path.Length == 15)
-                {
-                    return (distances[currentLocation, 0], $"{path},0");
-                }
-                
-                foreach (var location in locations)
-                {
-                    if (location.Key == currentLocation ||
-                        path.Split(',').Select(int.Parse).ToList().Contains(location.Key))
-                    {
-                        continue;
-                    }
-
-                    var tmp = GetShortestPathLengthV2(locations,
-                                                      distances,
-                                                      location.Key,
-                                                      $"{path},{location.Key}");
+                                                    $"{path},{location.Key}",
+                                                    part2);
 
                     int distance = distances[currentLocation, location.Key] + tmp.distance;
 
@@ -213,7 +184,7 @@ namespace AdventOfCode2016
                 var locations = GetLocations(input);
                 var distances = GetDistanceMatrix(locations, map);
 
-                Console.WriteLine(GetShortestPathLengthV2(locations, distances, 0, "0"));
+                Console.WriteLine(GetShortestPathLength(locations, distances, 0, "0", true));
             }
         }
     }
